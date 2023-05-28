@@ -1,8 +1,9 @@
 # main.py
-
 import streamlit as st
 
 import requests
+
+import shutil
 
 def download_video(url):
 
@@ -28,6 +29,8 @@ def download_video(url):
 
                 file.write(chunk)
 
+    return filename
+
 # Streamlit app code
 
 st.title("Video Downloader")
@@ -46,11 +49,35 @@ if st.button("Download"):
 
         # Download the video
 
-        download_video(url)
+        filename = download_video(url)
 
         st.success("Video downloaded successfully!")
+
+        # Create a temporary download link
+
+        with open(filename, "rb") as file:
+
+            # Read the file contents
+
+            video_bytes = file.read()
+
+        # Generate a unique filename for download
+
+        download_filename = f"{filename}"
+
+        st.download_button(
+
+            label="Click here to download the video",
+
+            data=video_bytes,
+
+            file_name=download_filename,
+
+        )
 
     else:
 
         st.warning("Please enter a valid video URL.")
+
+
 
