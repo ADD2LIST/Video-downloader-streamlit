@@ -1,9 +1,6 @@
-# main.py
 import streamlit as st
 
 import requests
-
-import shutil
 
 def download_video(url):
 
@@ -49,35 +46,59 @@ if st.button("Download"):
 
         # Download the video
 
-        filename = download_video(url)
+        try:
 
-        st.success("Video downloaded successfully!")
+            filename = download_video(url)
 
-        # Create a temporary download link
+            st.success("Video downloaded successfully!")
 
-        with open(filename, "rb") as file:
+            # Create a temporary download link
 
-            # Read the file contents
+            with open(filename, "rb") as file:
 
-            video_bytes = file.read()
+                # Read the file contents
 
-        # Generate a unique filename for download
+                video_bytes = file.read()
 
-        download_filename = f"{filename}"
+            # Generate a unique filename for download
 
-        st.download_button(
+            download_filename = f"{filename}"
 
-            label="Click here to download the video",
+            # Determine the MIME type based on the file extension
 
-            data=video_bytes,
+            mime_type = "video/mp4"  # Default to MP4
 
-            file_name=download_filename,
+            if filename.endswith(".webm"):
 
-        )
+                mime_type = "video/webm"
+
+            elif filename.endswith(".avi"):
+
+                mime_type = "video/x-msvideo"
+
+            # Provide a download link with the specified MIME type
+
+            st.download_button(
+
+                label="Click here to download the video",
+
+                data=video_bytes,
+
+                file_name=download_filename,
+
+                mime=mime_type,
+
+            )
+
+        except Exception as e:
+
+            st.error(f"Failed to download the video. Error: {str(e)}")
 
     else:
 
         st.warning("Please enter a valid video URL.")
 
 
-
+    
+    
+      
