@@ -2,6 +2,8 @@ import streamlit as st
 
 import instaloader
 
+from instaloader import PostType
+
 def download_instagram_video(url):
 
     # Create an instance of Instaloader
@@ -30,7 +32,7 @@ def download_instagram_reel(url):
 
     try:
 
-        loader.download_reels(url, filename="downloaded_reel")
+        loader.download_post(url, target=PostType.REEL, filename="downloaded_reel")
 
         st.success("Reel downloaded successfully!")
 
@@ -75,9 +77,9 @@ if st.button("Download Reel"):
     else:
 
         st.warning("Please enter a valid Instagram reel URL")
+
+
         
-
-
 
         
               
