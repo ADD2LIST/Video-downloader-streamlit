@@ -1,82 +1,87 @@
 import streamlit as st
 
-import instaloader
+import requests
 
-def download_instagram_video(url):
+import os
 
-    # Create an instance of Instaloader
+def download_reel(reel_url):
 
-    loader = instaloader.Instaloader()
+  """Downloads an Instagram reel video from the given URL.
 
-    # Download the video
+  Args:
 
-    try:
+    reel_url: The URL of the Instagram reel video to download.
 
-        loader.download_video(url, target='.')
+  Returns:
 
-        st.success("Video downloaded successfully!")
+    The path to the downloaded video file.
 
-    except Exception as e:
+  """
 
-        st.error(f"Failed to download the video. Error: {str(e)}")
+  # Get the video ID from the URL.
 
-def download_instagram_reel(url):
+  video_id = reel_url.split("/")[-1]
 
-    # Create an instance of Instaloader
+  # Make a request to the Instagram API to get the video data.
 
-    loader = instaloader.Instaloader()
+  response = requests.get(f"https://graph.instagram.com/reels/{video_id}/?fields=media_url,taken_at")
 
-    # Download the reel
+  # Check if the request was successful.
 
-    try:
+  if response.status_code != 200:
 
-        loader.download_video(url, target='.')
+    raise Exception(f"Error downloading reel: {response.status_code}")
 
-        st.success("Reel downloaded successfully!")
+  # Get the video URL and the timestamp of the video.
 
-    except Exception as e:
+  video_url = response.json()["media_url"]
 
-        st.error(f"Failed to download the reel. Error: {str(e)}")
+  timestamp = response.json()["taken_at"]
 
-# Streamlit app code
+  # Create a directory to store the downloaded video.
 
-st.title("Instagram Video and Reel Downloader")
+  download_dir = os.path.join(os.getcwd(), "downloads")
 
-# Input URL
+  if not os.path.exists(download_dir):
 
-url = st.text_input("Enter the Instagram video or reel URL")
+    os.mkdir(download_dir)
 
-# Download button
+  # Download the video.
 
-if st.button("Download Video"):
+  response = requests.get(video_url)
 
-    # Check if URL is provided
+  with open(os.path.join(download_dir, f"{video_id}.mp4"), "wb") as f:
 
-    if url:
+    f.write(response.content)
 
-        # Download the video
+  # Return the path to the downloaded video file.
 
-        download_instagram_video(url)
+  return os.path.join(download_dir, f"{video_id}.mp4")
 
-    else:
+# Create a Streamlit app.
 
-        st.warning("Please enter a valid Instagram video URL")
+app = st.empty()
 
-if st.button("Download Reel"):
+# Get the Instagram reel URL from the user.
 
-    # Check if URL is provided
+reel_url = st.text_input("Enter the Instagram reel URL:")
 
-    if url:
+# If the user enters a valid URL, download the video.
 
-        # Download the reel
+if reel_url:
 
-        download_instagram_reel(url)
+  video_path = download_reel(reel_url)
 
-    else:
+  st.success(f"Downloaded video to {video_path}")
 
-        st.warning("Please enter a valid Instagram reel URL")
+# Otherwise, show an error message.
+
+else:
+
+  st.error("Please enter a valid Instagram reel URL.")
 
 
 
+    
+    
         
-              
